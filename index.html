@@ -9,7 +9,12 @@
       font-family: Arial, sans-serif;
       padding: 15px;
       margin: 0;
-      background-color: #f9f9f9;
+      background-color: #000;
+      color: #fff;
+    }
+
+    h1, h2, #mensagem, label, select {
+      color: #fff;
     }
 
     h1 {
@@ -23,21 +28,23 @@
       padding: 12px;
       font-size: 1em;
       margin-bottom: 20px;
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #444;
     }
 
     section {
       margin-bottom: 25px;
       padding: 15px;
-      background: #fff;
-      border: 1px solid #ddd;
+      background: #111;
+      border: 1px solid #444;
       border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 5px rgba(255,255,255,0.1);
     }
 
     h2 {
       font-size: 1.2em;
       margin: 0 0 10px;
-      color: #444;
     }
 
     label {
@@ -55,13 +62,11 @@
     }
 
     #mensagem {
-      color: #666;
       text-align: center;
       font-size: 1em;
       margin-top: 20px;
     }
 
-    /* Responsivo: melhora visual em telas pequenas */
     @media (max-width: 480px) {
       body {
         font-size: 16px;
