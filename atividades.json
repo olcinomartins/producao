@@ -1,0 +1,23 @@
+{
+  "P1": {
+    "Louvor": [
+      "Prestar atenção",
+      "Oferecer agua antes de entrar",
+      "Verificar cadarço"
+    ],
+    "Palavra": [
+      "Acompanhar entrada do preletor",
+      "Organizar púlpito"
+    ]
+  },
+  "Stage": {
+    "Louvor": [
+      "Checar cabos",
+      "Verificar microfones"
+    ],
+    "Encerramento": [
+      "Desmontar equipamentos",
+      "Guardar instrumentos"
+    ]
+  }
+}
