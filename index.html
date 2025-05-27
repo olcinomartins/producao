@@ -136,10 +136,8 @@
     <option value="Safe 2">Safe 2</option>
   </select>
 
-  
   <div id="checklists"></div>
   <div id="mensagem">Selecione um cargo para ver o checklist.</div>
-  <button onclick="copiarObservacoes()">Copiar observações</button>
 
   <script>
     let atividades = {};
@@ -188,6 +186,12 @@
         textarea.className = "observacao";
         container.appendChild(textarea);
       });
+
+      // Cria o botão de copiar ao final do checklist
+      const botao = document.createElement("button");
+      botao.textContent = "Copiar Observações";
+      botao.onclick = copiarObservacoes;
+      container.appendChild(botao);
     }
 
     function copiarObservacoes() {
