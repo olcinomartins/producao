@@ -54,6 +54,12 @@
       color: #c7c7c7;
     }
 
+    .cargo-section {
+      margin-bottom: 40px;
+      border-top: 1px solid #444;
+      padding-top: 20px;
+    }
+
     label {
       display: flex;
       align-items: flex-start;
@@ -61,11 +67,13 @@
       margin-bottom: 12px;
       font-size: 1em;
       line-height: 1.4;
+      cursor: pointer;
     }
 
     input[type="checkbox"] {
       transform: scale(1.3);
       margin-top: 4px;
+      cursor: pointer;
     }
 
     textarea {
@@ -120,14 +128,12 @@
   </div>
 
   <h1>Checklist da Produção</h1>
-
   <div class="intro">
     Somos uma equipe de excelência, pontuais e focados. Cultura Onda Dura.
   </div>
 
-  <label for="cargo">Selecione seu cargo:</label>
-  <select id="cargo" onchange="mostrarChecklist()">
-    <option value="">-- Escolha --</option>
+  <label for="cargo">Selecione seu(s) cargo(s):</label>
+  <select id="cargo" multiple size="6" onchange="mostrarChecklist()">
     <option value="P1">P1</option>
     <option value="Stage">Stage</option>
     <option value="P3">P3</option>
@@ -137,7 +143,7 @@
   </select>
 
   <div id="checklists"></div>
-  <div id="mensagem">Selecione um cargo para ver o checklist.</div>
+  <div id="mensagem">Selecione um ou mais cargos para ver os checklists.</div>
 
   <script>
     let atividades = {};
@@ -148,70 +154,85 @@
       .catch(() => alert("Erro ao carregar o arquivo de atividades."));
 
     function mostrarChecklist() {
-      const cargo = document.getElementById("cargo").value;
+      const cargoSelect = document.getElementById("cargo");
+      const selectedOptions = Array.from(cargoSelect.selectedOptions).map(opt => opt.value);
       const container = document.getElementById("checklists");
       const mensagem = document.getElementById("mensagem");
 
       container.innerHTML = "";
+      mensagem.textContent = selectedOptions.length === 0 ? "Selecione um ou mais cargos para ver os checklists." : "";
 
-      if (!cargo || !atividades[cargo]) {
-        mensagem.textContent = "Selecione um cargo para ver o checklist.";
-        return;
-      }
+      selectedOptions.forEach(cargo => {
+        if (!atividades[cargo]) return;
 
-      mensagem.textContent = "";
+        const section = document.createElement("div");
+        section.className = "cargo-section";
 
-      const dados = atividades[cargo];
+        const tituloCargo = document.createElement("h2");
+        tituloCargo.textContent = cargo;
+        section.appendChild(tituloCargo);
 
-      Object.keys(dados).forEach(momento => {
-        const h2 = document.createElement("h2");
-        h2.textContent = momento;
-        container.appendChild(h2);
+        const dados = atividades[cargo];
 
-        dados[momento].forEach(item => {
-          const label = document.createElement("label");
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          label.appendChild(checkbox);
+        Object.keys(dados).forEach(momento => {
+          const h2 = document.createElement("h2");
+          h2.textContent = momento;
+          section.appendChild(h2);
 
-          const span = document.createElement("span");
-          span.textContent = item;
-          label.appendChild(span);
+          dados[momento].forEach(item => {
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            label.appendChild(checkbox);
 
-          container.appendChild(label);
+            const span = document.createElement("span");
+            span.textContent = item;
+            label.appendChild(span);
+
+            section.appendChild(label);
+          });
+
+          const textarea = document.createElement("textarea");
+          textarea.placeholder = "Observações sobre " + momento;
+          textarea.className = "observacao";
+          section.appendChild(textarea);
         });
 
-        const textarea = document.createElement("textarea");
-        textarea.placeholder = "Observações sobre " + momento;
-        textarea.className = "observacao";
-        container.appendChild(textarea);
+        container.appendChild(section);
       });
 
-      // Cria o botão de copiar ao final do checklist
-      const botao = document.createElement("button");
-      botao.textContent = "Copiar Observações";
-      botao.onclick = copiarObservacoes;
-      container.appendChild(botao);
+      if (selectedOptions.length > 0) {
+        const botao = document.createElement("button");
+        botao.textContent = "Copiar Observações";
+        botao.onclick = copiarObservacoes;
+        container.appendChild(botao);
+      }
     }
 
     function copiarObservacoes() {
-      const container = document.getElementById("checklists");
-      const momentos = container.querySelectorAll("h2");
-      const observacoes = container.querySelectorAll(".observacao");
-
+      const sections = document.querySelectorAll(".cargo-section");
       let texto = "";
 
-      momentos.forEach((momentoEl, index) => {
-        const valor = observacoes[index].value.trim();
-        if (valor !== "") {
-          texto += momentoEl.textContent + "\n";
-          valor.split('\n').forEach(linha => {
-            if (linha.trim()) {
-              texto += "- " + linha.trim() + "\n";
-            }
-          });
-          texto += "\n";
-        }
+      sections.forEach(section => {
+        const cargoTitle = section.querySelector("h2").textContent;
+        texto += `Cargo: ${cargoTitle}\n`;
+
+        const momentos = section.querySelectorAll("h2");
+        const observacoes = section.querySelectorAll(".observacao");
+
+        momentos.forEach((momentoEl, index) => {
+          if (index === 0) return; // Pula o h2 do cargo
+          const valor = observacoes[index - 1].value.trim();
+          if (valor !== "") {
+            texto += momentoEl.textContent + "\n";
+            valor.split('\n').forEach(linha => {
+              if (linha.trim()) {
+                texto += "- " + linha.trim() + "\n";
+              }
+            });
+            texto += "\n";
+          }
+        });
       });
 
       if (texto.trim() === "") {
