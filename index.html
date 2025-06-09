@@ -54,12 +54,6 @@
       color: #c7c7c7;
     }
 
-    .cargo-section {
-      margin-bottom: 40px;
-      border-top: 1px solid #444;
-      padding-top: 20px;
-    }
-
     label {
       display: flex;
       align-items: flex-start;
@@ -162,43 +156,44 @@
       container.innerHTML = "";
       mensagem.textContent = selectedOptions.length === 0 ? "Selecione um ou mais cargos para ver os checklists." : "";
 
+      // Organizar por momento
+      const momentosUnicos = new Set();
       selectedOptions.forEach(cargo => {
-        if (!atividades[cargo]) return;
+        if (atividades[cargo]) {
+          Object.keys(atividades[cargo]).forEach(momento => momentosUnicos.add(momento));
+        }
+      });
 
-        const section = document.createElement("div");
-        section.className = "cargo-section";
+      Array.from(momentosUnicos).forEach(momento => {
+        const h2 = document.createElement("h2");
+        h2.textContent = momento;
+        container.appendChild(h2);
 
-        const tituloCargo = document.createElement("h2");
-        tituloCargo.textContent = cargo;
-        section.appendChild(tituloCargo);
+        selectedOptions.forEach(cargo => {
+          if (atividades[cargo] && atividades[cargo][momento] && atividades[cargo][momento].length > 0) {
+            const subtitulo = document.createElement("h3");
+            subtitulo.textContent = cargo + ":";
+            container.appendChild(subtitulo);
 
-        const dados = atividades[cargo];
+            atividades[cargo][momento].forEach(item => {
+              const label = document.createElement("label");
+              const checkbox = document.createElement("input");
+              checkbox.type = "checkbox";
+              label.appendChild(checkbox);
 
-        Object.keys(dados).forEach(momento => {
-          const h2 = document.createElement("h2");
-          h2.textContent = momento;
-          section.appendChild(h2);
+              const span = document.createElement("span");
+              span.textContent = item;
+              label.appendChild(span);
 
-          dados[momento].forEach(item => {
-            const label = document.createElement("label");
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            label.appendChild(checkbox);
-
-            const span = document.createElement("span");
-            span.textContent = item;
-            label.appendChild(span);
-
-            section.appendChild(label);
-          });
-
-          const textarea = document.createElement("textarea");
-          textarea.placeholder = "Observações sobre " + momento;
-          textarea.className = "observacao";
-          section.appendChild(textarea);
+              container.appendChild(label);
+            });
+          }
         });
 
-        container.appendChild(section);
+        const textarea = document.createElement("textarea");
+        textarea.placeholder = "Observações sobre " + momento;
+        textarea.className = "observacao";
+        container.appendChild(textarea);
       });
 
       if (selectedOptions.length > 0) {
@@ -210,29 +205,22 @@
     }
 
     function copiarObservacoes() {
-      const sections = document.querySelectorAll(".cargo-section");
+      const container = document.getElementById("checklists");
+      const momentos = container.querySelectorAll("h2");
+      const observacoes = container.querySelectorAll(".observacao");
       let texto = "";
 
-      sections.forEach(section => {
-        const cargoTitle = section.querySelector("h2").textContent;
-        texto += `Cargo: ${cargoTitle}\n`;
-
-        const momentos = section.querySelectorAll("h2");
-        const observacoes = section.querySelectorAll(".observacao");
-
-        momentos.forEach((momentoEl, index) => {
-          if (index === 0) return; // Pula o h2 do cargo
-          const valor = observacoes[index - 1].value.trim();
-          if (valor !== "") {
-            texto += momentoEl.textContent + "\n";
-            valor.split('\n').forEach(linha => {
-              if (linha.trim()) {
-                texto += "- " + linha.trim() + "\n";
-              }
-            });
-            texto += "\n";
-          }
-        });
+      momentos.forEach((momentoEl, index) => {
+        const valor = observacoes[index].value.trim();
+        if (valor !== "") {
+          texto += momentoEl.textContent + "\n";
+          valor.split('\n').forEach(linha => {
+            if (linha.trim()) {
+              texto += "- " + linha.trim() + "\n";
+            }
+          });
+          texto += "\n";
+        }
       });
 
       if (texto.trim() === "") {
